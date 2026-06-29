@@ -11,13 +11,154 @@ from datetime import date, timedelta
 
 PARISH_NAME    = "Our Lady of Guadalupe Catholic Parish"
 PARISH_ADDRESS = "11691 NW 25 Street · Doral, FL 33172"
+PARISH_PHONE   = "(305) 593-6123"
 
-st.set_page_config(page_title="OLG Mass Intentions", page_icon="✝", layout="centered")
+st.set_page_config(page_title="OLOG Mass Intentions", page_icon="✝", layout="centered")
 
 st.markdown("""
 <style>
-    .block-container { max-width: 760px; padding-top: 2rem; }
-    .stButton > button { border-radius: 6px; }
+/* ── Page background ───────────────────────────────────────────── */
+.stApp {
+    background-color: #FAF8F4;
+}
+.block-container {
+    max-width: 780px;
+    padding-top: 0 !important;
+}
+
+/* ── Header banner ─────────────────────────────────────────────── */
+.olog-header {
+    background: linear-gradient(135deg, #1B3A6B 0%, #0F2447 100%);
+    color: white;
+    padding: 28px 32px 22px 32px;
+    border-radius: 0 0 12px 12px;
+    margin-bottom: 24px;
+    text-align: center;
+}
+.olog-header .cross {
+    font-size: 2.2rem;
+    color: #C9A227;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+.olog-header h1 {
+    font-size: 1.45rem;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+    color: white;
+    letter-spacing: 0.3px;
+}
+.olog-header .subtitle {
+    font-size: 0.82rem;
+    color: #C9A227;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+.olog-header .address {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.7);
+    margin: 0;
+}
+.olog-divider {
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #C9A227, transparent);
+    border: none;
+    margin: 4px 0 20px 0;
+}
+
+/* ── Day card ──────────────────────────────────────────────────── */
+.day-header {
+    background: linear-gradient(90deg, #1B3A6B, #254d8f);
+    color: white;
+    padding: 8px 14px;
+    border-radius: 8px 8px 0 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    margin-bottom: 0;
+}
+.day-card {
+    background: white;
+    border: 1px solid #D9D3C7;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    padding: 14px 16px 10px 16px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+/* ── Time slot label ───────────────────────────────────────────── */
+.slot-label {
+    background: #F2EDE4;
+    border-left: 3px solid #C9A227;
+    padding: 3px 10px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #1B3A6B;
+    border-radius: 0 4px 4px 0;
+    margin-bottom: 6px;
+    display: inline-block;
+}
+
+/* ── Buttons ───────────────────────────────────────────────────── */
+.stButton > button[kind="primary"] {
+    background-color: #1B3A6B !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 6px !important;
+}
+.stButton > button[kind="primary"]:hover {
+    background-color: #254d8f !important;
+}
+.stButton > button[kind="secondary"] {
+    border-color: #1B3A6B !important;
+    color: #1B3A6B !important;
+    border-radius: 6px !important;
+}
+.stDownloadButton > button {
+    background-color: #C9A227 !important;
+    color: white !important;
+    border: none !important;
+    font-weight: 600 !important;
+    border-radius: 6px !important;
+}
+.stDownloadButton > button:hover {
+    background-color: #a8841e !important;
+}
+
+/* ── Selectbox / inputs ────────────────────────────────────────── */
+.stSelectbox > div > div {
+    border-color: #C9D0DC !important;
+    border-radius: 6px !important;
+}
+.stTextInput > div > div > input {
+    border-color: #C9D0DC !important;
+    border-radius: 6px !important;
+}
+
+/* ── Checkbox ──────────────────────────────────────────────────── */
+.stCheckbox span {
+    color: #1B3A6B;
+    font-weight: 600;
+}
+
+/* ── Success / warning ─────────────────────────────────────────── */
+.stSuccess {
+    background-color: #EAF4EA !important;
+    border-left-color: #2E7D32 !important;
+}
+
+/* ── Footer ────────────────────────────────────────────────────── */
+.olog-footer {
+    text-align: center;
+    color: #888;
+    font-size: 0.75rem;
+    padding: 20px 0 8px 0;
+    border-top: 1px solid #E0D9CF;
+    margin-top: 10px;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -41,7 +182,7 @@ def find_font():
     return None, None, None, None
 
 
-def build_pdf_bytes(days_data):
+def build_pdf_bytes(days_data, date_range_label=''):
     from reportlab.lib.pagesizes import letter
     from reportlab.lib import colors
     from reportlab.lib.styles import ParagraphStyle
@@ -61,14 +202,20 @@ def build_pdf_bytes(days_data):
         reg_alias  = 'Helvetica'
         bold_alias = 'Helvetica-Bold'
 
+    NAVY   = colors.HexColor('#1B3A6B')
+    GOLD   = colors.HexColor('#C9A227')
+    GREY55 = colors.HexColor('#555555')
+
     PW       = 6.5 * inch
     TIME_COL = 1.3 * inch
     INT_COL  = PW - TIME_COL
     CROSS    = '†'
     BULLET   = '•'
 
-    title_style   = ParagraphStyle('title',   fontName=bold_alias, fontSize=13, leading=18, alignment=1)
-    address_style = ParagraphStyle('address', fontName=reg_alias,  fontSize=9,  leading=13, alignment=1, textColor=colors.HexColor('#555555'))
+    parish_style  = ParagraphStyle('parish',  fontName=bold_alias, fontSize=15, leading=20, alignment=1, textColor=NAVY)
+    section_style = ParagraphStyle('section', fontName=bold_alias, fontSize=10, leading=14, alignment=1, textColor=GREY55, spaceAfter=2)
+    address_style = ParagraphStyle('address', fontName=reg_alias,  fontSize=9,  leading=13, alignment=1, textColor=GREY55)
+    daterange_style = ParagraphStyle('daterange', fontName=bold_alias, fontSize=11, leading=15, alignment=1, textColor=NAVY, spaceBefore=4)
     n = ParagraphStyle('n', fontName=reg_alias,  fontSize=10, leading=18)
     b = ParagraphStyle('b', fontName=bold_alias, fontSize=10, leading=18)
 
@@ -89,11 +236,16 @@ def build_pdf_bytes(days_data):
 
     story = []
     for i, day in enumerate(days_data):
-        # Parish header — only on first page
         if i == 0:
-            story.append(Paragraph(esc(PARISH_NAME), title_style))
+            # ── Parish header ──────────────────────────────────────
+            story.append(Paragraph(esc(PARISH_NAME), parish_style))
+            story.append(HRFlowable(width='100%', thickness=2, color=GOLD, spaceAfter=3, spaceBefore=4))
+            story.append(Paragraph('WEEKDAY MASS INTENTIONS', section_style))
+            if date_range_label:
+                story.append(Paragraph(esc(date_range_label), daterange_style))
             story.append(Paragraph(esc(PARISH_ADDRESS), address_style))
-            story.append(Spacer(1, 6))
+            story.append(HRFlowable(width='100%', thickness=0.5, color=GOLD, spaceAfter=8, spaceBefore=4))
+            story.append(Spacer(1, 4))
 
         story.append(HRFlowable(
             width='100%', thickness=0.5, color=colors.black,
@@ -143,8 +295,7 @@ def format_date(d):
 if 'days' not in st.session_state:
     st.session_state.days = []
 
-# Weekday schedule: 7:00 AM + 12:15 PM every day
-TIME_OPTIONS = ['7:00 AM', '12:15 PM', 'Custom…']
+TIME_OPTIONS  = ['7:00 AM', '12:15 PM', 'Custom…']
 DEFAULT_SLOTS = ['7:00 AM', '12:15 PM']
 
 
@@ -189,90 +340,104 @@ def move_down(di, si, ii):
         lst[ii], lst[ii + 1] = lst[ii + 1], lst[ii]
 
 
-# ── UI ─────────────────────────────────────────────────────────────────────────
-st.title("✝ Mass Intentions")
-st.caption(f"**{PARISH_NAME}** · Doral, FL  ·  Weekday Masses: 7:00 AM & 12:15 PM")
+# ── Header banner ──────────────────────────────────────────────────────────────
+st.markdown(f"""
+<div class="olog-header">
+    <div class="cross">✝</div>
+    <h1>{PARISH_NAME}</h1>
+    <div class="subtitle">Mass Intentions</div>
+    <div class="address">{PARISH_ADDRESS} &nbsp;·&nbsp; {PARISH_PHONE}</div>
+</div>
+<hr class="olog-divider"/>
+""", unsafe_allow_html=True)
 
-st.divider()
 
+# ── Days ───────────────────────────────────────────────────────────────────────
 for di, day in enumerate(st.session_state.days):
 
-    # Date picker row
-    col_date, col_del = st.columns([5, 1])
-    with col_date:
+    # Day header bar + delete button
+    col_name, col_del = st.columns([6, 1])
+    with col_name:
+        st.markdown(f'<div class="day-header">✝ &nbsp;{day["name"]}</div>', unsafe_allow_html=True)
+    with col_del:
+        st.button("🗑", key=f"del_day_{di}", on_click=remove_day, args=(di,), help="Remove day")
+
+    # Date picker (inside card)
+    with st.container():
+        st.markdown('<div class="day-card">', unsafe_allow_html=True)
+
         picked = st.date_input(
             "Date",
             value=day.get('_date', date.today()),
             key=f"day_{di}_date",
-            label_visibility="collapsed",
+            label_visibility="visible",
             format="MM/DD/YYYY",
         )
         day['_date'] = picked
         day['name']  = format_date(picked)
-    with col_del:
-        st.button("🗑", key=f"del_day_{di}", on_click=remove_day, args=(di,), help="Remove day")
 
-    st.caption(f"**{day['name']}**")
+        # Time slots
+        for si, slot in enumerate(day['slots']):
+            st.markdown(f'<div class="slot-label">⏰ {slot["time"]}</div>', unsafe_allow_html=True)
 
-    # Time slots
-    for si, slot in enumerate(day['slots']):
-        tc1, tc2, tc3 = st.columns([2, 5, 0.7])
-        with tc1:
-            time_sel = st.selectbox(
-                "Time", TIME_OPTIONS,
-                index=TIME_OPTIONS.index(slot['time']) if slot['time'] in TIME_OPTIONS else len(TIME_OPTIONS) - 1,
-                key=f"slot_{di}_{si}_sel",
-                label_visibility="collapsed",
-            )
-            if time_sel == 'Custom…':
-                slot['time'] = st.text_input(
-                    "Custom time",
-                    value=slot['time'] if slot['time'] not in TIME_OPTIONS else '',
-                    key=f"slot_{di}_{si}_custom",
-                    label_visibility="collapsed",
-                    placeholder="e.g. 8:00 AM",
-                )
-            else:
-                slot['time'] = time_sel
-        with tc3:
-            st.button("🗑", key=f"del_slot_{di}_{si}", on_click=remove_slot, args=(di, si), help="Remove slot")
-
-        # Intentions
-        for ii, intention in enumerate(slot['intentions']):
-            ic1, ic2, ic3, ic4, ic5 = st.columns([0.6, 3.8, 0.5, 0.5, 0.5])
-            with ic1:
-                intention['cross'] = st.checkbox(
-                    "†", value=intention['cross'],
-                    key=f"int_{di}_{si}_{ii}_cross",
-                    help="Check for deceased (†)",
-                )
-            with ic2:
-                intention['name'] = st.text_input(
-                    "Name", value=intention['name'],
-                    placeholder="Name or intention…",
-                    key=f"int_{di}_{si}_{ii}_name",
+            tc1, tc2, tc3 = st.columns([2, 5, 0.7])
+            with tc1:
+                time_sel = st.selectbox(
+                    "Time", TIME_OPTIONS,
+                    index=TIME_OPTIONS.index(slot['time']) if slot['time'] in TIME_OPTIONS else len(TIME_OPTIONS) - 1,
+                    key=f"slot_{di}_{si}_sel",
                     label_visibility="collapsed",
                 )
-            with ic3:
-                st.button("↑", key=f"up_{di}_{si}_{ii}",   on_click=move_up,   args=(di, si, ii), disabled=(ii == 0))
-            with ic4:
-                st.button("↓", key=f"dn_{di}_{si}_{ii}",   on_click=move_down, args=(di, si, ii), disabled=(ii == len(slot['intentions']) - 1))
-            with ic5:
-                st.button("✕", key=f"del_int_{di}_{si}_{ii}", on_click=remove_intention, args=(di, si, ii))
+                if time_sel == 'Custom…':
+                    slot['time'] = st.text_input(
+                        "Custom time",
+                        value=slot['time'] if slot['time'] not in TIME_OPTIONS else '',
+                        key=f"slot_{di}_{si}_custom",
+                        label_visibility="collapsed",
+                        placeholder="e.g. 8:00 AM",
+                    )
+                else:
+                    slot['time'] = time_sel
+            with tc3:
+                st.button("🗑", key=f"del_slot_{di}_{si}", on_click=remove_slot, args=(di, si), help="Remove slot")
 
-        if slot['intentions']:
-            st.caption("☑ = deceased (†)  ·  unchecked = special intention")
+            for ii, intention in enumerate(slot['intentions']):
+                ic1, ic2, ic3, ic4, ic5 = st.columns([0.6, 3.8, 0.5, 0.5, 0.5])
+                with ic1:
+                    intention['cross'] = st.checkbox(
+                        "†", value=intention['cross'],
+                        key=f"int_{di}_{si}_{ii}_cross",
+                        help="Deceased (†)",
+                    )
+                with ic2:
+                    intention['name'] = st.text_input(
+                        "Name", value=intention['name'],
+                        placeholder="Name or intention…",
+                        key=f"int_{di}_{si}_{ii}_name",
+                        label_visibility="collapsed",
+                    )
+                with ic3:
+                    st.button("↑", key=f"up_{di}_{si}_{ii}", on_click=move_up,   args=(di, si, ii), disabled=(ii == 0))
+                with ic4:
+                    st.button("↓", key=f"dn_{di}_{si}_{ii}", on_click=move_down, args=(di, si, ii), disabled=(ii == len(slot['intentions']) - 1))
+                with ic5:
+                    st.button("✕", key=f"del_int_{di}_{si}_{ii}", on_click=remove_intention, args=(di, si, ii))
 
-        st.button(f"＋ Add intention", key=f"add_int_{di}_{si}", on_click=add_intention, args=(di, si))
+            if slot['intentions']:
+                st.caption("☑ = deceased (†)  ·  unchecked = special intention")
 
-    st.button("＋ Add time slot", key=f"add_slot_{di}", on_click=add_slot, args=(di,))
-    st.divider()
+            st.button(f"＋ Add intention to {slot['time']}", key=f"add_int_{di}_{si}", on_click=add_intention, args=(di, si))
+            st.write("")
 
+        st.button("＋ Add time slot", key=f"add_slot_{di}", on_click=add_slot, args=(di,))
+        st.markdown('</div>', unsafe_allow_html=True)
+
+st.write("")
 st.button("＋ Add day", on_click=add_day, type="secondary")
 
 st.divider()
 
-# Filename + generate
+# ── Generate PDF ───────────────────────────────────────────────────────────────
 def auto_filename():
     days = st.session_state.get('days', [])
     if not days:
@@ -309,8 +474,17 @@ if st.button("📄 Generate PDF", type="primary", disabled=len(st.session_state.
     else:
         with st.spinner("Generating PDF…"):
             try:
-                pdf_bytes = build_pdf_bytes(clean)
-                st.success("PDF ready!")
+                # Build a readable date range label for the PDF header
+                all_dates = [d['_date'] for d in st.session_state.days if '_date' in d]
+                if all_dates:
+                    fd = min(all_dates); ld = max(all_dates)
+                    fl = f"{fd.strftime('%B')} {fd.day}"
+                    ll = f"{ld.strftime('%B')} {ld.day}, {ld.year}"
+                    dr_label = fl if fd == ld else f"{fl} – {ll}"
+                else:
+                    dr_label = ''
+                pdf_bytes = build_pdf_bytes(clean, date_range_label=dr_label)
+                st.success("✅ PDF ready to download!")
                 st.download_button(
                     "⬇ Download PDF",
                     data=pdf_bytes,
@@ -320,3 +494,11 @@ if st.button("📄 Generate PDF", type="primary", disabled=len(st.session_state.
             except Exception as e:
                 st.error(f"Error: {e}")
                 st.exception(e)
+
+# ── Footer ─────────────────────────────────────────────────────────────────────
+st.markdown(f"""
+<div class="olog-footer">
+    {PARISH_NAME} &nbsp;·&nbsp; {PARISH_ADDRESS} &nbsp;·&nbsp; {PARISH_PHONE}<br/>
+    <a href="https://www.guadalupedoral.org" target="_blank" style="color:#1B3A6B;">guadalupedoral.org</a>
+</div>
+""", unsafe_allow_html=True)
