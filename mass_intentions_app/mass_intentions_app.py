@@ -504,49 +504,12 @@ for di, day in enumerate(st.session_state.days):
         with tc3:
             st.button("🗑", key=f"del_slot_{di}_{si}", on_click=remove_slot, args=(di, si), help="Remove slot")
 
-        # ── Drag-to-reorder strip ──────────────────────────────────────────
-        if slot['intentions']:
-            try:
-                from streamlit_sortables import sort_items
-
-                # Build clean display labels (no IDs — those stay in session state)
-                drag_labels = []
-                for intention in slot['intentions']:
-                    if '_id' not in intention:
-                        intention['_id'] = _new_id()
-                    cross_mark = '✝  ' if intention['cross'] else '   '
-                    display = intention['name'].strip() or '(empty)'
-                    drag_labels.append(f"{cross_mark}{display}")
-
-                sorted_labels = sort_items(
-                    drag_labels,
-                    direction='vertical',
-                    key=f"sort_{di}_{si}",
-                )
-
-                if sorted_labels != drag_labels:
-                    # Match sorted labels back to intentions using a consumed queue
-                    # (handles duplicate names correctly)
-                    remaining = list(enumerate(drag_labels))
-                    new_intentions = []
-                    for lbl in sorted_labels:
-                        for i, (orig_idx, orig_lbl) in enumerate(remaining):
-                            if orig_lbl == lbl:
-                                new_intentions.append(slot['intentions'][orig_idx])
-                                remaining.pop(i)
-                                break
-                    if len(new_intentions) == len(slot['intentions']):
-                        slot['intentions'] = new_intentions
-                        st.rerun()
-            except ImportError:
-                st.caption("_Install streamlit-sortables for drag-to-reorder_")
-
         # ── Edit rows ──────────────────────────────────────────────────────
         for ii, intention in enumerate(slot['intentions']):
             if '_id' not in intention:
                 intention['_id'] = _new_id()
             iid = intention['_id']
-            ic1, ic2, ic3 = st.columns([0.6, 4.3, 0.5])
+            ic1, ic2, ic3, ic4, ic5 = st.columns([0.6, 3.8, 0.5, 0.5, 0.5])
             with ic1:
                 intention['cross'] = st.checkbox(
                     "†", value=intention['cross'],
@@ -561,10 +524,14 @@ for di, day in enumerate(st.session_state.days):
                     label_visibility="collapsed",
                 )
             with ic3:
+                st.button("↑", key=f"up_{iid}", on_click=move_up,   args=(di, si, ii), disabled=(ii == 0))
+            with ic4:
+                st.button("↓", key=f"dn_{iid}", on_click=move_down, args=(di, si, ii), disabled=(ii == len(slot['intentions']) - 1))
+            with ic5:
                 st.button("✕", key=f"del_{iid}", on_click=remove_intention, args=(di, si, ii))
 
         if slot['intentions']:
-            st.caption("☑ = deceased (†)  ·  drag rows above to reorder")
+            st.caption("☑ = deceased (†)  ·  unchecked = special intention")
 
         st.button(f"＋ Add intention", key=f"add_int_{di}_{si}", on_click=add_intention, args=(di, si))
         st.write("")
