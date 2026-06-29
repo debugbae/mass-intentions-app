@@ -167,12 +167,40 @@ def build_pdf_bytes(days_data, date_range_label=''):
             lines.append(f'{BULLET} {CROSS} {name}' if item['cross'] else f'{BULLET} {name}')
         return Paragraph('<br/>'.join(lines) if lines else '&nbsp;', n)
 
-    def draw_footer(canv, doc):
-        canv.saveState()
+    def draw_page_number(canv, pw):
         canv.setFont(reg_alias, 8)
         canv.setFillColor(GREY88)
-        pw, ph = letter
         canv.drawCentredString(pw / 2, 0.45 * inch, f"Page {doc.page}")
+
+    def draw_footer(canv, doc):
+        canv.saveState()
+        pw, ph = letter
+        draw_page_number(canv, pw)
+        canv.restoreState()
+
+    def draw_later_pages(canv, doc):
+        canv.saveState()
+        pw, ph = letter
+        lm = inch
+        cw = pw - 2 * inch
+
+        # Navy running header bar
+        bar_h = 15
+        bar_y = ph - 44
+        canv.setFillColor(NAVY)
+        canv.rect(lm, bar_y, cw, bar_h, fill=1, stroke=0)
+
+        # Text inside bar
+        canv.setFont(bold_alias, 7.5)
+        canv.setFillColor(colors.white)
+        canv.drawCentredString(pw / 2, bar_y + 4, f"{PARISH_NAME}  ·  Mass Intentions")
+
+        # Thin gold rule below bar
+        canv.setStrokeColor(GOLD)
+        canv.setLineWidth(0.75)
+        canv.line(lm, bar_y - 2, lm + cw, bar_y - 2)
+
+        draw_page_number(canv, pw)
         canv.restoreState()
 
     story = []
@@ -221,7 +249,7 @@ def build_pdf_bytes(days_data, date_range_label=''):
         rightMargin=inch, leftMargin=inch,
         topMargin=0.75 * inch, bottomMargin=0.75 * inch,
     )
-    doc.build(story, onFirstPage=draw_footer, onLaterPages=draw_footer)
+    doc.build(story, onFirstPage=draw_footer, onLaterPages=draw_later_pages)
     return buf.getvalue()
 
 
