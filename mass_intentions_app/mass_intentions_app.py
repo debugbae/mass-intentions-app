@@ -17,96 +17,66 @@ st.set_page_config(page_title="OLOG Mass Intentions", page_icon="✝", layout="c
 
 st.markdown("""
 <style>
-/* ── Page background ───────────────────────────────────────────── */
-.stApp { background-color: #F4F1EB; }
-.block-container { max-width: 780px; padding-top: 0 !important; }
+/* ── Page ──────────────────────────────────────────────────────── */
+.stApp { background-color: #f0ede8; }
+.block-container { max-width: 720px; padding-top: 1.5rem !important; }
 
-/* ── Header banner ─────────────────────────────────────────────── */
-.olog-header {
-    background-color: #1B3A6B;
-    color: white;
-    padding: 28px 32px 20px 32px;
-    border-radius: 0 0 0 0;
-    margin-bottom: 0;
-    text-align: center;
-}
-.olog-header .cross { font-size: 2rem; color: #C9A227; line-height: 1; margin-bottom: 6px; }
-.olog-header h1 { font-size: 1.35rem; font-weight: 700; margin: 0 0 6px 0; color: white; }
-.olog-gold-rule {
-    height: 3px;
-    background: #C9A227;
-    border: none;
-    margin: 0 0 0 0;
-}
-.olog-subheader {
-    background-color: #EDE8DC;
-    text-align: center;
-    padding: 8px 16px 10px;
-    margin-bottom: 20px;
-}
-.olog-subheader .subtitle {
-    font-size: 0.72rem;
-    color: #555;
-    font-weight: 600;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin: 0 0 2px 0;
-}
-.olog-subheader .address { font-size: 0.78rem; color: #777; margin: 0; }
-
-/* ── Day card ──────────────────────────────────────────────────── */
-.day-header {
-    background-color: #1B3A6B;
-    color: white;
-    padding: 7px 14px;
-    border-radius: 6px 6px 0 0;
-    font-size: 0.9rem;
-    font-weight: 600;
-    margin-bottom: 0;
-}
-.day-card {
+/* ── Document card ─────────────────────────────────────────────── */
+.doc-card {
     background: white;
-    border: 1px solid #D5CEBC;
-    border-top: none;
-    border-radius: 0 0 6px 6px;
-    padding: 14px 16px 10px 16px;
-    margin-bottom: 20px;
+    border-radius: 6px;
+    border: 0.5px solid #ddd;
+    padding: 40px 48px 32px;
+    margin-bottom: 24px;
 }
 
-/* ── Slot rows ─────────────────────────────────────────────────── */
-.slot-row-even { background-color: #F4F1EB; border-radius: 4px; padding: 2px 6px; margin-bottom: 4px; }
-.slot-label {
-    background: #EDE8DC;
-    border-left: 3px solid #C9A227;
-    padding: 3px 10px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #1B3A6B;
-    border-radius: 0;
-    margin-bottom: 6px;
-    display: inline-block;
+/* ── Header ────────────────────────────────────────────────────── */
+.olog-cross { text-align: center; font-size: 1.6rem; color: #C9A227; margin: 0 0 6px; line-height: 1; }
+.olog-parish { text-align: center; font-size: 1.3rem; font-weight: 700; color: #1B3A6B; margin: 0 0 10px; }
+.olog-gold-rule-thick { border: none; border-top: 2.5px solid #C9A227; margin: 0 0 8px; }
+.olog-section-label {
+    text-align: center; font-size: 0.68rem; letter-spacing: 2.5px;
+    text-transform: uppercase; color: #777; margin: 0 0 3px;
 }
+.olog-daterange { text-align: center; font-size: 1.05rem; font-weight: 700; color: #1B3A6B; margin: 0 0 3px; }
+.olog-address { text-align: center; font-size: 0.75rem; color: #999; margin: 0 0 8px; }
+.olog-gold-rule-thin { border: none; border-top: 1px solid #C9A227; margin: 0 0 20px; }
+
+/* ── Day section ───────────────────────────────────────────────── */
+.day-rule { border: none; border-top: 1px solid #333; margin: 18px 0 5px; }
+.day-name { font-size: 1rem; font-weight: 700; color: #1B3A6B; margin: 0 0 10px; }
+
+/* ── Slot header row ───────────────────────────────────────────── */
+.slot-col-hdr {
+    display: flex; gap: 0;
+    border-top: 1px solid #444; border-bottom: 1px solid #444;
+    padding: 4px 0; margin-bottom: 4px;
+    font-size: 0.78rem; font-weight: 600; color: #444;
+}
+.slot-col-hdr .t { width: 120px; flex-shrink: 0; }
+.slot-col-hdr .i { flex: 1; padding-left: 12px; }
+
+/* ── Slot row ──────────────────────────────────────────────────── */
+.slot-row {
+    border-bottom: 0.5px solid #ddd;
+    padding: 6px 0 10px;
+    margin-bottom: 0;
+}
+.slot-row-even { background-color: #FAF8F4; }
 
 /* ── Buttons ───────────────────────────────────────────────────── */
 .stButton > button[kind="primary"] {
-    background-color: #1B3A6B !important;
-    color: white !important;
-    border: none !important;
-    border-radius: 4px !important;
+    background-color: #1B3A6B !important; color: white !important;
+    border: none !important; border-radius: 4px !important;
 }
 .stButton > button[kind="primary"]:hover { background-color: #254d8f !important; }
 .stButton > button[kind="secondary"] {
-    border-color: #1B3A6B !important;
-    color: #1B3A6B !important;
-    border-radius: 4px !important;
-    background-color: white !important;
+    border: 1px solid #1B3A6B !important; color: #1B3A6B !important;
+    border-radius: 4px !important; background: white !important;
 }
 .stDownloadButton > button {
-    background-color: #C9A227 !important;
-    color: white !important;
-    border: none !important;
-    font-weight: 600 !important;
-    border-radius: 4px !important;
+    background-color: #C9A227 !important; color: white !important;
+    border: none !important; font-weight: 600 !important; border-radius: 4px !important;
 }
 .stDownloadButton > button:hover { background-color: #a8841e !important; }
 
@@ -116,13 +86,10 @@ st.markdown("""
 
 /* ── Footer ────────────────────────────────────────────────────── */
 .olog-footer {
-    text-align: center;
-    color: #888;
-    font-size: 0.73rem;
-    padding: 16px 0 8px 0;
-    border-top: 2px solid #C9A227;
-    margin-top: 16px;
+    text-align: center; color: #aaa; font-size: 0.72rem;
+    padding: 14px 0 4px; border-top: 2px solid #C9A227; margin-top: 8px;
 }
+.olog-footer a { color: #1B3A6B; text-decoration: none; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -330,16 +297,30 @@ def move_down(di, si, ii):
         lst[ii], lst[ii + 1] = lst[ii + 1], lst[ii]
 
 
-# ── Header banner ──────────────────────────────────────────────────────────────
+# ── Header ─────────────────────────────────────────────────────────────────────
+def date_range_display():
+    days = st.session_state.get('days', [])
+    dates = [d['_date'] for d in days if '_date' in d]
+    if not dates:
+        return ""
+    first, last = min(dates), max(dates)
+    f = f"{first.strftime('%B')} {first.day}"
+    l = f"{last.strftime('%B')} {last.day}, {last.year}"
+    return f if first == last else f"{f} – {l}"
+
+dr = date_range_display()
 st.markdown(f"""
-<div class="olog-header">
-    <div class="cross">✝</div>
-    <h1>{PARISH_NAME}</h1>
-</div>
-<hr class="olog-gold-rule"/>
-<div class="olog-subheader">
-    <p class="subtitle">Weekday Mass Intentions</p>
-    <p class="address">{PARISH_ADDRESS} &nbsp;·&nbsp; {PARISH_PHONE}</p>
+<div class="doc-card">
+  <p class="olog-cross">✝</p>
+  <p class="olog-parish">{PARISH_NAME}</p>
+  <hr class="olog-gold-rule-thick"/>
+  <p class="olog-section-label">Weekday Mass Intentions</p>
+  {"<p class='olog-daterange'>" + dr + "</p>" if dr else ""}
+  <p class="olog-address">{PARISH_ADDRESS} &nbsp;·&nbsp; {PARISH_PHONE}</p>
+  <hr class="olog-gold-rule-thin"/>
+  <p style="color:#888; font-size:0.82rem; text-align:center; margin:0;">
+    Add days below, then click <strong>Generate PDF</strong>.
+  </p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -347,83 +328,84 @@ st.markdown(f"""
 # ── Days ───────────────────────────────────────────────────────────────────────
 for di, day in enumerate(st.session_state.days):
 
-    # Day header bar + delete button
-    col_name, col_del = st.columns([6, 1])
-    with col_name:
-        st.markdown(f'<div class="day-header">✝ &nbsp;{day["name"]}</div>', unsafe_allow_html=True)
-    with col_del:
-        st.button("🗑", key=f"del_day_{di}", on_click=remove_day, args=(di,), help="Remove day")
+    # ── Day section header ──────────────────────────────────────────
+    st.markdown('<hr class="day-rule"/>', unsafe_allow_html=True)
 
-    # Date picker (inside card)
-    with st.container():
-        st.markdown('<div class="day-card">', unsafe_allow_html=True)
-
+    col_date, col_del = st.columns([5, 1])
+    with col_date:
         picked = st.date_input(
             "Date",
             value=day.get('_date', date.today()),
             key=f"day_{di}_date",
-            label_visibility="visible",
+            label_visibility="collapsed",
             format="MM/DD/YYYY",
         )
         day['_date'] = picked
         day['name']  = format_date(picked)
+    with col_del:
+        st.button("🗑", key=f"del_day_{di}", on_click=remove_day, args=(di,), help="Remove day")
 
-        # Time slots
-        for si, slot in enumerate(day['slots']):
-            st.markdown(f'<div class="slot-label">⏰ {slot["time"]}</div>', unsafe_allow_html=True)
+    st.markdown(f'<p class="day-name">{day["name"]}</p>', unsafe_allow_html=True)
 
-            tc1, tc2, tc3 = st.columns([2, 5, 0.7])
-            with tc1:
-                time_sel = st.selectbox(
-                    "Time", TIME_OPTIONS,
-                    index=TIME_OPTIONS.index(slot['time']) if slot['time'] in TIME_OPTIONS else len(TIME_OPTIONS) - 1,
-                    key=f"slot_{di}_{si}_sel",
+    # ── Time slots ──────────────────────────────────────────────────
+    for si, slot in enumerate(day['slots']):
+        st.markdown(
+            f'<div class="slot-col-hdr"><span class="t">Time</span><span class="i">Intentions</span></div>',
+            unsafe_allow_html=True
+        )
+
+        tc1, tc2, tc3 = st.columns([2, 5, 0.7])
+        with tc1:
+            time_sel = st.selectbox(
+                "Time", TIME_OPTIONS,
+                index=TIME_OPTIONS.index(slot['time']) if slot['time'] in TIME_OPTIONS else len(TIME_OPTIONS) - 1,
+                key=f"slot_{di}_{si}_sel",
+                label_visibility="collapsed",
+            )
+            if time_sel == 'Custom…':
+                slot['time'] = st.text_input(
+                    "Custom time",
+                    value=slot['time'] if slot['time'] not in TIME_OPTIONS else '',
+                    key=f"slot_{di}_{si}_custom",
+                    label_visibility="collapsed",
+                    placeholder="e.g. 8:00 AM",
+                )
+            else:
+                slot['time'] = time_sel
+        with tc3:
+            st.button("🗑", key=f"del_slot_{di}_{si}", on_click=remove_slot, args=(di, si), help="Remove slot")
+
+        for ii, intention in enumerate(slot['intentions']):
+            ic1, ic2, ic3, ic4, ic5 = st.columns([0.6, 3.8, 0.5, 0.5, 0.5])
+            with ic1:
+                intention['cross'] = st.checkbox(
+                    "†", value=intention['cross'],
+                    key=f"int_{di}_{si}_{ii}_cross",
+                    help="Deceased (†)",
+                )
+            with ic2:
+                intention['name'] = st.text_input(
+                    "Name", value=intention['name'],
+                    placeholder="Name or intention…",
+                    key=f"int_{di}_{si}_{ii}_name",
                     label_visibility="collapsed",
                 )
-                if time_sel == 'Custom…':
-                    slot['time'] = st.text_input(
-                        "Custom time",
-                        value=slot['time'] if slot['time'] not in TIME_OPTIONS else '',
-                        key=f"slot_{di}_{si}_custom",
-                        label_visibility="collapsed",
-                        placeholder="e.g. 8:00 AM",
-                    )
-                else:
-                    slot['time'] = time_sel
-            with tc3:
-                st.button("🗑", key=f"del_slot_{di}_{si}", on_click=remove_slot, args=(di, si), help="Remove slot")
+            with ic3:
+                st.button("↑", key=f"up_{di}_{si}_{ii}", on_click=move_up,   args=(di, si, ii), disabled=(ii == 0))
+            with ic4:
+                st.button("↓", key=f"dn_{di}_{si}_{ii}", on_click=move_down, args=(di, si, ii), disabled=(ii == len(slot['intentions']) - 1))
+            with ic5:
+                st.button("✕", key=f"del_int_{di}_{si}_{ii}", on_click=remove_intention, args=(di, si, ii))
 
-            for ii, intention in enumerate(slot['intentions']):
-                ic1, ic2, ic3, ic4, ic5 = st.columns([0.6, 3.8, 0.5, 0.5, 0.5])
-                with ic1:
-                    intention['cross'] = st.checkbox(
-                        "†", value=intention['cross'],
-                        key=f"int_{di}_{si}_{ii}_cross",
-                        help="Deceased (†)",
-                    )
-                with ic2:
-                    intention['name'] = st.text_input(
-                        "Name", value=intention['name'],
-                        placeholder="Name or intention…",
-                        key=f"int_{di}_{si}_{ii}_name",
-                        label_visibility="collapsed",
-                    )
-                with ic3:
-                    st.button("↑", key=f"up_{di}_{si}_{ii}", on_click=move_up,   args=(di, si, ii), disabled=(ii == 0))
-                with ic4:
-                    st.button("↓", key=f"dn_{di}_{si}_{ii}", on_click=move_down, args=(di, si, ii), disabled=(ii == len(slot['intentions']) - 1))
-                with ic5:
-                    st.button("✕", key=f"del_int_{di}_{si}_{ii}", on_click=remove_intention, args=(di, si, ii))
+        if slot['intentions']:
+            st.caption("☑ = deceased (†)  ·  unchecked = special intention")
 
-            if slot['intentions']:
-                st.caption("☑ = deceased (†)  ·  unchecked = special intention")
+        st.button(f"＋ Add intention", key=f"add_int_{di}_{si}", on_click=add_intention, args=(di, si))
+        st.write("")
 
-            st.button(f"＋ Add intention to {slot['time']}", key=f"add_int_{di}_{si}", on_click=add_intention, args=(di, si))
-            st.write("")
+    st.button("＋ Add time slot", key=f"add_slot_{di}", on_click=add_slot, args=(di,))
 
-        st.button("＋ Add time slot", key=f"add_slot_{di}", on_click=add_slot, args=(di,))
-        st.markdown('</div>', unsafe_allow_html=True)
-
+st.markdown('<hr class="day-rule"/>', unsafe_allow_html=True)
 st.write("")
 st.button("＋ Add day", on_click=add_day, type="secondary")
 
