@@ -6,8 +6,15 @@ Our Lady of Guadalupe Catholic Parish — Doral, FL
 import streamlit as st
 import io
 import os
+import uuid
 import xml.sax.saxutils as saxutils
 from datetime import date, timedelta
+
+def _new_id():
+    return uuid.uuid4().hex[:10]
+
+def _make_intention(cross=True, name=''):
+    return {'_id': _new_id(), 'cross': cross, 'name': name}
 
 PARISH_NAME    = "Our Lady of Guadalupe Catholic Parish"
 PARISH_ADDRESS = "11691 NW 25 Street · Doral, FL 33172"
@@ -299,7 +306,7 @@ def parse_intentions_pdf(file_bytes):
         raw = raw.replace(BULLET, '').replace('•', '').replace('·', '').strip()
         has_cross = CROSS in raw or '†' in raw
         name = raw.replace(CROSS, '').replace('†', '').strip()
-        return {'cross': has_cross, 'name': name} if name else None
+        return {'_id': _new_id(), 'cross': has_cross, 'name': name} if name else None
 
     days = []
     with pdfplumber.open(io.BytesIO(file_bytes)) as pdf:
@@ -370,7 +377,7 @@ def add_day():
     st.session_state.days.append({
         '_date': next_d,
         'name': format_date(next_d),
-        'slots': [{'time': t, 'intentions': []} for t in DEFAULT_SLOTS]
+        'slots': [{'time': t, 'intentions': [], '_id': _new_id()} for t in DEFAULT_SLOTS]
     })
 
 def remove_day(di):
@@ -383,7 +390,7 @@ def remove_slot(di, si):
     st.session_state.days[di]['slots'].pop(si)
 
 def add_intention(di, si):
-    st.session_state.days[di]['slots'][si]['intentions'].append({'cross': True, 'name': ''})
+    st.session_state.days[di]['slots'][si]['intentions'].append(_make_intention())
 
 def remove_intention(di, si, ii):
     st.session_state.days[di]['slots'][si]['intentions'].pop(ii)
@@ -481,26 +488,30 @@ for di, day in enumerate(st.session_state.days):
             st.button("🗑", key=f"del_slot_{di}_{si}", on_click=remove_slot, args=(di, si), help="Remove slot")
 
         for ii, intention in enumerate(slot['intentions']):
+            # Stable ID so widget keys survive reorder/delete
+            if '_id' not in intention:
+                intention['_id'] = _new_id()
+            iid = intention['_id']
             ic1, ic2, ic3, ic4, ic5 = st.columns([0.6, 3.8, 0.5, 0.5, 0.5])
             with ic1:
                 intention['cross'] = st.checkbox(
                     "†", value=intention['cross'],
-                    key=f"int_{di}_{si}_{ii}_cross",
+                    key=f"chk_{iid}",
                     help="Deceased (†)",
                 )
             with ic2:
                 intention['name'] = st.text_input(
                     "Name", value=intention['name'],
                     placeholder="Name or intention…",
-                    key=f"int_{di}_{si}_{ii}_name",
+                    key=f"txt_{iid}",
                     label_visibility="collapsed",
                 )
             with ic3:
-                st.button("↑", key=f"up_{di}_{si}_{ii}", on_click=move_up,   args=(di, si, ii), disabled=(ii == 0))
+                st.button("↑", key=f"up_{iid}", on_click=move_up,   args=(di, si, ii), disabled=(ii == 0))
             with ic4:
-                st.button("↓", key=f"dn_{di}_{si}_{ii}", on_click=move_down, args=(di, si, ii), disabled=(ii == len(slot['intentions']) - 1))
+                st.button("↓", key=f"dn_{iid}", on_click=move_down, args=(di, si, ii), disabled=(ii == len(slot['intentions']) - 1))
             with ic5:
-                st.button("✕", key=f"del_int_{di}_{si}_{ii}", on_click=remove_intention, args=(di, si, ii))
+                st.button("✕", key=f"del_{iid}", on_click=remove_intention, args=(di, si, ii))
 
         if slot['intentions']:
             st.caption("☑ = deceased (†)  ·  unchecked = special intention")
