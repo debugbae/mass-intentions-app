@@ -1,5 +1,6 @@
 """
 Mass Intentions PDF Generator
+Our Lady of Guadalupe Catholic Parish — Doral, FL
 """
 
 import streamlit as st
@@ -8,7 +9,10 @@ import os
 import xml.sax.saxutils as saxutils
 from datetime import date, timedelta
 
-st.set_page_config(page_title="Mass Intentions PDF", page_icon="✝", layout="centered")
+PARISH_NAME    = "Our Lady of Guadalupe Catholic Parish"
+PARISH_ADDRESS = "11691 NW 25 Street · Doral, FL 33172"
+
+st.set_page_config(page_title="OLG Mass Intentions", page_icon="✝", layout="centered")
 
 st.markdown("""
 <style>
@@ -44,7 +48,7 @@ def build_pdf_bytes(days_data):
     from reportlab.lib.units import inch
     from reportlab.platypus import (
         SimpleDocTemplate, Paragraph, Table, TableStyle,
-        HRFlowable, PageBreak
+        HRFlowable, PageBreak, Spacer
     )
     from reportlab.pdfbase import pdfmetrics
     from reportlab.pdfbase.ttfonts import TTFont
@@ -63,6 +67,8 @@ def build_pdf_bytes(days_data):
     CROSS    = '†'
     BULLET   = '•'
 
+    title_style   = ParagraphStyle('title',   fontName=bold_alias, fontSize=13, leading=18, alignment=1)
+    address_style = ParagraphStyle('address', fontName=reg_alias,  fontSize=9,  leading=13, alignment=1, textColor=colors.HexColor('#555555'))
     n = ParagraphStyle('n', fontName=reg_alias,  fontSize=10, leading=18)
     b = ParagraphStyle('b', fontName=bold_alias, fontSize=10, leading=18)
 
@@ -83,6 +89,12 @@ def build_pdf_bytes(days_data):
 
     story = []
     for i, day in enumerate(days_data):
+        # Parish header — only on first page
+        if i == 0:
+            story.append(Paragraph(esc(PARISH_NAME), title_style))
+            story.append(Paragraph(esc(PARISH_ADDRESS), address_style))
+            story.append(Spacer(1, 6))
+
         story.append(HRFlowable(
             width='100%', thickness=0.5, color=colors.black,
             spaceAfter=3, spaceBefore=0
@@ -131,7 +143,9 @@ def format_date(d):
 if 'days' not in st.session_state:
     st.session_state.days = []
 
-TIME_OPTIONS = ['7:00 AM', '12:15 N', '8:00 AM', '9:00 AM', '11:00 AM', '5:00 PM', 'Custom…']
+# Weekday schedule: 7:00 AM + 12:15 PM every day
+TIME_OPTIONS = ['7:00 AM', '12:15 PM', 'Custom…']
+DEFAULT_SLOTS = ['7:00 AM', '12:15 PM']
 
 
 # ── Callbacks ──────────────────────────────────────────────────────────────────
@@ -146,15 +160,14 @@ def add_day():
     st.session_state.days.append({
         '_date': next_d,
         'name': format_date(next_d),
-        'slots': []
+        'slots': [{'time': t, 'intentions': []} for t in DEFAULT_SLOTS]
     })
 
 def remove_day(di):
     st.session_state.days.pop(di)
 
 def add_slot(di):
-    default_time = '12:15 N' if st.session_state.days[di]['slots'] else '7:00 AM'
-    st.session_state.days[di]['slots'].append({'time': default_time, 'intentions': []})
+    st.session_state.days[di]['slots'].append({'time': '7:00 AM', 'intentions': []})
 
 def remove_slot(di, si):
     st.session_state.days[di]['slots'].pop(si)
@@ -177,8 +190,8 @@ def move_down(di, si, ii):
 
 
 # ── UI ─────────────────────────────────────────────────────────────────────────
-st.title("✝ Mass Intentions PDF")
-st.caption("Add days and intentions below, then click **Generate PDF**.")
+st.title("✝ Mass Intentions")
+st.caption(f"**{PARISH_NAME}** · Doral, FL  ·  Weekday Masses: 7:00 AM & 12:15 PM")
 
 st.divider()
 
@@ -217,7 +230,7 @@ for di, day in enumerate(st.session_state.days):
                     value=slot['time'] if slot['time'] not in TIME_OPTIONS else '',
                     key=f"slot_{di}_{si}_custom",
                     label_visibility="collapsed",
-                    placeholder="e.g. 6:00 PM",
+                    placeholder="e.g. 8:00 AM",
                 )
             else:
                 slot['time'] = time_sel
@@ -260,7 +273,23 @@ st.button("＋ Add day", on_click=add_day, type="secondary")
 st.divider()
 
 # Filename + generate
-filename = st.text_input("PDF filename", value="WEEKDAY MASS INTENTIONS.pdf")
+def auto_filename():
+    days = st.session_state.get('days', [])
+    if not days:
+        return "OLOG MASS INTENTIONS.pdf"
+    dates = [d['_date'] for d in days if '_date' in d]
+    if not dates:
+        return "OLOG MASS INTENTIONS.pdf"
+    first = min(dates)
+    last  = max(dates)
+    f = f"{first.strftime('%B')} {first.day}"
+    l = f"{last.strftime('%B')} {last.day}"
+    year = first.year
+    if f == l:
+        return f"OLOG MASS INTENTIONS_{f} {year}.pdf"
+    return f"OLOG MASS INTENTIONS_{f} to {l} {year}.pdf"
+
+filename = st.text_input("PDF filename", value=auto_filename())
 if not filename.endswith('.pdf'):
     filename += '.pdf'
 
