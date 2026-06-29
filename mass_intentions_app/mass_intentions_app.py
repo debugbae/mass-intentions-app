@@ -18,16 +18,17 @@ st.set_page_config(page_title="OLOG Mass Intentions", page_icon="✝", layout="c
 st.markdown("""
 <style>
 .stApp { background-color: #FAF8F4; }
-.block-container { max-width: 780px; padding-top: 0 !important; }
+.block-container { max-width: 780px; padding-top: 1rem !important; }
 
 .olog-header {
     background-color: #1B3A6B;
     color: white;
-    padding: 28px 32px 20px 32px;
+    padding: 32px 32px 22px 32px;
+    border-radius: 8px 8px 0 0;
     margin-bottom: 0;
     text-align: center;
 }
-.olog-header .cross { font-size: 2rem; color: #C9A227; line-height: 1; margin-bottom: 6px; }
+.olog-header .cross { font-size: 2rem; color: #C9A227; line-height: 1; margin-bottom: 8px; display: block; }
 .olog-header h1 { font-size: 1.35rem; font-weight: 700; margin: 0 0 6px 0; color: white; }
 .olog-gold-rule { height: 3px; background: #C9A227; border: none; margin: 0; }
 .olog-subheader {
