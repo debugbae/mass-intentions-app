@@ -271,7 +271,12 @@ def parse_intentions_pdf(file_bytes):
     )
     time_re = re.compile(r'^(\d{1,2}:\d{2}\s*(?:AM|PM))')
 
+    def clean_cid(text):
+        """Strip (cid:N) artifacts that pdfplumber emits for unmapped glyphs."""
+        return re.sub(r'\(cid:\d+\)', '', text).strip()
+
     def parse_intention_line(text):
+        text = clean_cid(text)
         has_cross = '†' in text
         name = text.replace('•', '').replace('†', '').replace('·', '').strip()
         return {'cross': has_cross, 'name': name} if name else None
@@ -298,8 +303,8 @@ def parse_intentions_pdf(file_bytes):
                 for row in table:
                     if not row or len(row) < 2:
                         continue
-                    time_cell = (row[0] or '').strip()
-                    int_cell  = (row[1] or '').strip()
+                    time_cell = clean_cid((row[0] or '').strip())
+                    int_cell  = clean_cid((row[1] or '').strip())
                     if time_cell.lower() in ('time', ''):
                         continue
                     if not time_re.match(time_cell):
