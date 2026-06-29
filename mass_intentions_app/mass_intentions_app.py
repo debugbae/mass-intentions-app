@@ -487,12 +487,40 @@ for di, day in enumerate(st.session_state.days):
         with tc3:
             st.button("🗑", key=f"del_slot_{di}_{si}", on_click=remove_slot, args=(di, si), help="Remove slot")
 
+        # ── Drag-to-reorder strip ──────────────────────────────────────────
+        if slot['intentions']:
+            try:
+                from streamlit_sortables import sort_items
+                # Labels encode _id so we can match back after sort
+                # Format: "ID|||display" — ID never shown to user
+                drag_labels = []
+                for intention in slot['intentions']:
+                    if '_id' not in intention:
+                        intention['_id'] = _new_id()
+                    cross_mark = '✝  ' if intention['cross'] else '     '
+                    display = intention['name'].strip() or '(empty)'
+                    drag_labels.append(f"{intention['_id']}|||{cross_mark}{display}")
+
+                sorted_labels = sort_items(
+                    drag_labels,
+                    direction='vertical',
+                    key=f"sort_{di}_{si}",
+                )
+
+                if sorted_labels != drag_labels:
+                    id_map = {i['_id']: i for i in slot['intentions']}
+                    new_order = [lbl.split('|||')[0] for lbl in sorted_labels]
+                    slot['intentions'] = [id_map[iid] for iid in new_order if iid in id_map]
+                    st.rerun()
+            except ImportError:
+                st.caption("_Install streamlit-sortables for drag-to-reorder_")
+
+        # ── Edit rows ──────────────────────────────────────────────────────
         for ii, intention in enumerate(slot['intentions']):
-            # Stable ID so widget keys survive reorder/delete
             if '_id' not in intention:
                 intention['_id'] = _new_id()
             iid = intention['_id']
-            ic1, ic2, ic3, ic4, ic5 = st.columns([0.6, 3.8, 0.5, 0.5, 0.5])
+            ic1, ic2, ic3 = st.columns([0.6, 4.3, 0.5])
             with ic1:
                 intention['cross'] = st.checkbox(
                     "†", value=intention['cross'],
@@ -507,14 +535,10 @@ for di, day in enumerate(st.session_state.days):
                     label_visibility="collapsed",
                 )
             with ic3:
-                st.button("↑", key=f"up_{iid}", on_click=move_up,   args=(di, si, ii), disabled=(ii == 0))
-            with ic4:
-                st.button("↓", key=f"dn_{iid}", on_click=move_down, args=(di, si, ii), disabled=(ii == len(slot['intentions']) - 1))
-            with ic5:
                 st.button("✕", key=f"del_{iid}", on_click=remove_intention, args=(di, si, ii))
 
         if slot['intentions']:
-            st.caption("☑ = deceased (†)  ·  unchecked = special intention")
+            st.caption("☑ = deceased (†)  ·  drag rows above to reorder")
 
         st.button(f"＋ Add intention", key=f"add_int_{di}_{si}", on_click=add_intention, args=(di, si))
         st.write("")
