@@ -508,15 +508,15 @@ for di, day in enumerate(st.session_state.days):
         if slot['intentions']:
             try:
                 from streamlit_sortables import sort_items
-                # Labels encode _id so we can match back after sort
-                # Format: "ID|||display" — ID never shown to user
+
+                # Build clean display labels (no IDs — those stay in session state)
                 drag_labels = []
                 for intention in slot['intentions']:
                     if '_id' not in intention:
                         intention['_id'] = _new_id()
-                    cross_mark = '✝  ' if intention['cross'] else '     '
+                    cross_mark = '✝  ' if intention['cross'] else '   '
                     display = intention['name'].strip() or '(empty)'
-                    drag_labels.append(f"{intention['_id']}|||{cross_mark}{display}")
+                    drag_labels.append(f"{cross_mark}{display}")
 
                 sorted_labels = sort_items(
                     drag_labels,
@@ -525,10 +525,19 @@ for di, day in enumerate(st.session_state.days):
                 )
 
                 if sorted_labels != drag_labels:
-                    id_map = {i['_id']: i for i in slot['intentions']}
-                    new_order = [lbl.split('|||')[0] for lbl in sorted_labels]
-                    slot['intentions'] = [id_map[iid] for iid in new_order if iid in id_map]
-                    st.rerun()
+                    # Match sorted labels back to intentions using a consumed queue
+                    # (handles duplicate names correctly)
+                    remaining = list(enumerate(drag_labels))
+                    new_intentions = []
+                    for lbl in sorted_labels:
+                        for i, (orig_idx, orig_lbl) in enumerate(remaining):
+                            if orig_lbl == lbl:
+                                new_intentions.append(slot['intentions'][orig_idx])
+                                remaining.pop(i)
+                                break
+                    if len(new_intentions) == len(slot['intentions']):
+                        slot['intentions'] = new_intentions
+                        st.rerun()
             except ImportError:
                 st.caption("_Install streamlit-sortables for drag-to-reorder_")
 
