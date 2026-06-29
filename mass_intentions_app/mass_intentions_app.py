@@ -421,8 +421,13 @@ st.markdown(f"""
 
 
 # ── Import from existing PDF ───────────────────────────────────────────────────
-with st.expander("📂 Import from existing PDF", expanded=False):
-    st.caption("Upload a previously generated OLOG PDF to add its days into the form.")
+if 'show_pdf_import' not in st.session_state:
+    st.session_state.show_pdf_import = False
+
+if st.button("📂 Import from existing PDF", type="secondary"):
+    st.session_state.show_pdf_import = not st.session_state.show_pdf_import
+
+if st.session_state.show_pdf_import:
     uploaded_pdf = st.file_uploader(
         "Choose a PDF file",
         type=["pdf"],
@@ -436,6 +441,7 @@ with st.expander("📂 Import from existing PDF", expanded=False):
                     parsed = parse_intentions_pdf(uploaded_pdf.read())
                     if parsed:
                         st.session_state.days.extend(parsed)
+                        st.session_state.show_pdf_import = False
                         st.success(f"✅ Added {len(parsed)} day(s) from PDF.")
                         st.rerun()
                     else:
