@@ -259,32 +259,52 @@ def format_date(d):
 
 
 def parse_intentions_pdf(file_bytes):
-    """Parse an OLOG-generated PDF back into session-state day/slot/intention structure."""
+    """
+    Parse an OLOG Mass Intentions PDF (format received from the parish).
+
+    Each page looks like:
+        Monday June 29 2026
+        Time Intentions
+        7:00 AM ・ ✝ Name
+        ・ ✝ Name
+        12:15 N ・ Name
+        ・ Name
+    """
     import pdfplumber
     import re
     from datetime import datetime as dt
 
-    day_re = re.compile(
+    day_re  = re.compile(
         r'(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)'
         r'\s+(January|February|March|April|May|June|July|August|'
         r'September|October|November|December)\s+(\d{1,2})\s+(\d{4})'
     )
-    time_re = re.compile(r'^(\d{1,2}:\d{2}\s*(?:AM|PM))')
+    # Matches "7:00 AM", "12:15 N", "12:15 PM", "8:00 AM" etc.
+    time_re = re.compile(r'^(\d{1,2}:\d{2}\s*(?:AM|PM|N))\b')
+
+    BULLET = '・'  # ・ katakana middle dot used in parish PDFs
+    CROSS  = '✝'  # ✝
+
+    def normalize_time(t):
+        t = t.strip()
+        if t.endswith(' N'):
+            t = t[:-2].strip() + ' PM'
+        return t
 
     def clean_cid(text):
-        """Strip (cid:N) artifacts that pdfplumber emits for unmapped glyphs."""
         return re.sub(r'\(cid:\d+\)', '', text).strip()
 
-    def parse_intention_line(text):
-        text = clean_cid(text)
-        has_cross = '†' in text
-        name = text.replace('•', '').replace('†', '').replace('·', '').strip()
+    def parse_intention_text(raw):
+        raw = clean_cid(raw)
+        raw = raw.replace(BULLET, '').replace('•', '').replace('·', '').strip()
+        has_cross = CROSS in raw or '†' in raw
+        name = raw.replace(CROSS, '').replace('†', '').strip()
         return {'cross': has_cross, 'name': name} if name else None
 
     days = []
     with pdfplumber.open(io.BytesIO(file_bytes)) as pdf:
         for page in pdf.pages:
-            page_text = page.extract_text() or ''
+            page_text = clean_cid(page.extract_text() or '')
             day_match = day_re.search(page_text)
             if not day_match:
                 continue
@@ -296,46 +316,36 @@ def parse_intentions_pdf(file_bytes):
                 d = date.today()
 
             day_data = {'_date': d, 'name': day_name, 'slots': []}
+            current_slot = None
 
-            # Try table extraction (works well for reportlab tables)
-            tables = page.extract_tables()
-            for table in tables:
-                for row in table:
-                    if not row or len(row) < 2:
-                        continue
-                    time_cell = clean_cid((row[0] or '').strip())
-                    int_cell  = clean_cid((row[1] or '').strip())
-                    if time_cell.lower() in ('time', ''):
-                        continue
-                    if not time_re.match(time_cell):
-                        continue
-                    slot = {'time': time_cell, 'intentions': []}
-                    for line in int_cell.split('\n'):
-                        item = parse_intention_line(line.strip())
-                        if item:
-                            slot['intentions'].append(item)
-                    day_data['slots'].append(slot)
+            for line in page_text.split('\n'):
+                line = line.strip()
+                if not line:
+                    continue
+                if line.lower() == 'time intentions':
+                    continue
+                if day_re.match(line):
+                    continue
 
-            # Fallback: plain text parsing if tables gave nothing
-            if not day_data['slots']:
-                current_slot = None
-                for line in page_text.split('\n'):
-                    line = line.strip()
-                    tm = time_re.match(line)
-                    if tm:
-                        current_slot = {'time': tm.group(1).strip(), 'intentions': []}
-                        day_data['slots'].append(current_slot)
-                        rest = line[tm.end():].strip()
-                        if rest:
-                            item = parse_intention_line(rest)
-                            if item:
-                                current_slot['intentions'].append(item)
-                    elif current_slot and ('•' in line or '†' in line):
-                        item = parse_intention_line(line)
+                tm = time_re.match(line)
+                if tm:
+                    time_str = normalize_time(tm.group(1))
+                    current_slot = {'time': time_str, 'intentions': []}
+                    day_data['slots'].append(current_slot)
+                    # First intention may sit on the same line as the time
+                    rest = line[tm.end():].strip()
+                    if rest:
+                        item = parse_intention_text(rest)
                         if item:
                             current_slot['intentions'].append(item)
+                elif current_slot and (BULLET in line or '•' in line
+                                       or CROSS in line or '†' in line):
+                    item = parse_intention_text(line)
+                    if item:
+                        current_slot['intentions'].append(item)
 
-            days.append(day_data)
+            if day_data['slots']:
+                days.append(day_data)
 
     return days
 
