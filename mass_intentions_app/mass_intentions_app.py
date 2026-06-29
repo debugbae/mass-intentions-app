@@ -18,86 +18,71 @@ st.set_page_config(page_title="OLOG Mass Intentions", page_icon="✝", layout="c
 st.markdown("""
 <style>
 /* ── Page background ───────────────────────────────────────────── */
-.stApp {
-    background-color: #FAF8F4;
-}
-.block-container {
-    max-width: 780px;
-    padding-top: 0 !important;
-}
+.stApp { background-color: #F4F1EB; }
+.block-container { max-width: 780px; padding-top: 0 !important; }
 
 /* ── Header banner ─────────────────────────────────────────────── */
 .olog-header {
-    background: linear-gradient(135deg, #1B3A6B 0%, #0F2447 100%);
+    background-color: #1B3A6B;
     color: white;
-    padding: 28px 32px 22px 32px;
-    border-radius: 0 0 12px 12px;
-    margin-bottom: 24px;
+    padding: 28px 32px 20px 32px;
+    border-radius: 0 0 0 0;
+    margin-bottom: 0;
     text-align: center;
 }
-.olog-header .cross {
-    font-size: 2.2rem;
-    color: #C9A227;
-    line-height: 1;
-    margin-bottom: 4px;
-}
-.olog-header h1 {
-    font-size: 1.45rem;
-    font-weight: 700;
-    margin: 0 0 4px 0;
-    color: white;
-    letter-spacing: 0.3px;
-}
-.olog-header .subtitle {
-    font-size: 0.82rem;
-    color: #C9A227;
-    font-weight: 600;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    margin-bottom: 6px;
-}
-.olog-header .address {
-    font-size: 0.8rem;
-    color: rgba(255,255,255,0.7);
-    margin: 0;
-}
-.olog-divider {
+.olog-header .cross { font-size: 2rem; color: #C9A227; line-height: 1; margin-bottom: 6px; }
+.olog-header h1 { font-size: 1.35rem; font-weight: 700; margin: 0 0 6px 0; color: white; }
+.olog-gold-rule {
     height: 3px;
-    background: linear-gradient(90deg, transparent, #C9A227, transparent);
+    background: #C9A227;
     border: none;
-    margin: 4px 0 20px 0;
+    margin: 0 0 0 0;
 }
+.olog-subheader {
+    background-color: #EDE8DC;
+    text-align: center;
+    padding: 8px 16px 10px;
+    margin-bottom: 20px;
+}
+.olog-subheader .subtitle {
+    font-size: 0.72rem;
+    color: #555;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin: 0 0 2px 0;
+}
+.olog-subheader .address { font-size: 0.78rem; color: #777; margin: 0; }
 
 /* ── Day card ──────────────────────────────────────────────────── */
 .day-header {
-    background: linear-gradient(90deg, #1B3A6B, #254d8f);
+    background-color: #1B3A6B;
     color: white;
-    padding: 8px 14px;
-    border-radius: 8px 8px 0 0;
-    font-size: 0.95rem;
+    padding: 7px 14px;
+    border-radius: 6px 6px 0 0;
+    font-size: 0.9rem;
     font-weight: 600;
-    letter-spacing: 0.2px;
     margin-bottom: 0;
 }
 .day-card {
     background: white;
-    border: 1px solid #D9D3C7;
+    border: 1px solid #D5CEBC;
     border-top: none;
-    border-radius: 0 0 8px 8px;
+    border-radius: 0 0 6px 6px;
     padding: 14px 16px 10px 16px;
-    margin-bottom: 18px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    margin-bottom: 20px;
 }
 
-/* ── Time slot label ───────────────────────────────────────────── */
+/* ── Slot rows ─────────────────────────────────────────────────── */
+.slot-row-even { background-color: #F4F1EB; border-radius: 4px; padding: 2px 6px; margin-bottom: 4px; }
 .slot-label {
-    background: #F2EDE4;
+    background: #EDE8DC;
     border-left: 3px solid #C9A227;
     padding: 3px 10px;
     font-size: 0.8rem;
     font-weight: 600;
     color: #1B3A6B;
-    border-radius: 0 4px 4px 0;
+    border-radius: 0;
     margin-bottom: 6px;
     display: inline-block;
 }
@@ -107,57 +92,36 @@ st.markdown("""
     background-color: #1B3A6B !important;
     color: white !important;
     border: none !important;
-    border-radius: 6px !important;
+    border-radius: 4px !important;
 }
-.stButton > button[kind="primary"]:hover {
-    background-color: #254d8f !important;
-}
+.stButton > button[kind="primary"]:hover { background-color: #254d8f !important; }
 .stButton > button[kind="secondary"] {
     border-color: #1B3A6B !important;
     color: #1B3A6B !important;
-    border-radius: 6px !important;
+    border-radius: 4px !important;
+    background-color: white !important;
 }
 .stDownloadButton > button {
     background-color: #C9A227 !important;
     color: white !important;
     border: none !important;
     font-weight: 600 !important;
-    border-radius: 6px !important;
+    border-radius: 4px !important;
 }
-.stDownloadButton > button:hover {
-    background-color: #a8841e !important;
-}
+.stDownloadButton > button:hover { background-color: #a8841e !important; }
 
-/* ── Selectbox / inputs ────────────────────────────────────────── */
-.stSelectbox > div > div {
-    border-color: #C9D0DC !important;
-    border-radius: 6px !important;
-}
-.stTextInput > div > div > input {
-    border-color: #C9D0DC !important;
-    border-radius: 6px !important;
-}
-
-/* ── Checkbox ──────────────────────────────────────────────────── */
-.stCheckbox span {
-    color: #1B3A6B;
-    font-weight: 600;
-}
-
-/* ── Success / warning ─────────────────────────────────────────── */
-.stSuccess {
-    background-color: #EAF4EA !important;
-    border-left-color: #2E7D32 !important;
-}
+/* ── Inputs ────────────────────────────────────────────────────── */
+.stSelectbox > div > div { border-radius: 4px !important; }
+.stTextInput > div > div > input { border-radius: 4px !important; }
 
 /* ── Footer ────────────────────────────────────────────────────── */
 .olog-footer {
     text-align: center;
     color: #888;
-    font-size: 0.75rem;
-    padding: 20px 0 8px 0;
-    border-top: 1px solid #E0D9CF;
-    margin-top: 10px;
+    font-size: 0.73rem;
+    padding: 16px 0 8px 0;
+    border-top: 2px solid #C9A227;
+    margin-top: 16px;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -193,6 +157,7 @@ def build_pdf_bytes(days_data, date_range_label=''):
     )
     from reportlab.pdfbase import pdfmetrics
     from reportlab.pdfbase.ttfonts import TTFont
+    from reportlab.pdfgen import canvas as pdfcanvas
 
     reg_path, bold_path, reg_alias, bold_alias = find_font()
     if reg_path:
@@ -202,9 +167,12 @@ def build_pdf_bytes(days_data, date_range_label=''):
         reg_alias  = 'Helvetica'
         bold_alias = 'Helvetica-Bold'
 
-    NAVY   = colors.HexColor('#1B3A6B')
-    GOLD   = colors.HexColor('#C9A227')
-    GREY55 = colors.HexColor('#555555')
+    NAVY      = colors.HexColor('#1B3A6B')
+    GOLD      = colors.HexColor('#C9A227')
+    GREY55    = colors.HexColor('#555555')
+    GREY88    = colors.HexColor('#888888')
+    ROW_EVEN  = colors.HexColor('#F4F1EB')   # warm tint for alternating rows
+    HDR_BG    = colors.HexColor('#EDE8DC')   # column header row tint
 
     PW       = 6.5 * inch
     TIME_COL = 1.3 * inch
@@ -212,12 +180,14 @@ def build_pdf_bytes(days_data, date_range_label=''):
     CROSS    = '†'
     BULLET   = '•'
 
-    parish_style  = ParagraphStyle('parish',  fontName=bold_alias, fontSize=15, leading=20, alignment=1, textColor=NAVY)
-    section_style = ParagraphStyle('section', fontName=bold_alias, fontSize=10, leading=14, alignment=1, textColor=GREY55, spaceAfter=2)
-    address_style = ParagraphStyle('address', fontName=reg_alias,  fontSize=9,  leading=13, alignment=1, textColor=GREY55)
-    daterange_style = ParagraphStyle('daterange', fontName=bold_alias, fontSize=11, leading=15, alignment=1, textColor=NAVY, spaceBefore=4)
+    # ── Styles ──────────────────────────────────────────────────────
+    parish_style    = ParagraphStyle('parish',    fontName=bold_alias, fontSize=15, leading=20, alignment=1, textColor=NAVY)
+    section_style   = ParagraphStyle('section',   fontName=reg_alias,  fontSize=8,  leading=12, alignment=1, textColor=GREY55, spaceAfter=2, letterSpacing=1.5)
+    address_style   = ParagraphStyle('address',   fontName=reg_alias,  fontSize=8,  leading=12, alignment=1, textColor=GREY88)
+    daterange_style = ParagraphStyle('daterange', fontName=bold_alias, fontSize=12, leading=16, alignment=1, textColor=NAVY, spaceBefore=3)
+    day_hdr_style   = ParagraphStyle('day_hdr',   fontName=bold_alias, fontSize=10, leading=14, textColor=colors.white)
     n = ParagraphStyle('n', fontName=reg_alias,  fontSize=10, leading=18)
-    b = ParagraphStyle('b', fontName=bold_alias, fontSize=10, leading=18)
+    b = ParagraphStyle('b', fontName=bold_alias, fontSize=10, leading=18, textColor=GREY55)
 
     def esc(t):
         return saxutils.escape(str(t))
@@ -228,52 +198,72 @@ def build_pdf_bytes(days_data, date_range_label=''):
             name = esc(item['name'].strip())
             if not name:
                 continue
-            if item['cross']:
-                lines.append(f'{BULLET} {CROSS} {name}')
-            else:
-                lines.append(f'{BULLET} {name}')
+            lines.append(f'{BULLET} {CROSS} {name}' if item['cross'] else f'{BULLET} {name}')
         return Paragraph('<br/>'.join(lines) if lines else '&nbsp;', n)
 
+    # ── Page number footer ──────────────────────────────────────────
+    def draw_footer(canv, doc):
+        canv.saveState()
+        canv.setFont(reg_alias, 8)
+        canv.setFillColor(GREY88)
+        pw, ph = letter
+        canv.drawCentredString(pw / 2, 0.45 * inch, f"Page {doc.page}")
+        canv.restoreState()
+
+    # ── Build story ─────────────────────────────────────────────────
     story = []
     for i, day in enumerate(days_data):
+
+        # Parish header — first page only
         if i == 0:
-            # ── Parish header ──────────────────────────────────────
             story.append(Paragraph(esc(PARISH_NAME), parish_style))
-            story.append(HRFlowable(width='100%', thickness=2, color=GOLD, spaceAfter=3, spaceBefore=4))
+            story.append(HRFlowable(width='100%', thickness=2.5, color=GOLD, spaceAfter=4, spaceBefore=5))
             story.append(Paragraph('WEEKDAY MASS INTENTIONS', section_style))
             if date_range_label:
                 story.append(Paragraph(esc(date_range_label), daterange_style))
             story.append(Paragraph(esc(PARISH_ADDRESS), address_style))
-            story.append(HRFlowable(width='100%', thickness=0.5, color=GOLD, spaceAfter=8, spaceBefore=4))
-            story.append(Spacer(1, 4))
+            story.append(HRFlowable(width='100%', thickness=1, color=GOLD, spaceAfter=10, spaceBefore=5))
 
-        story.append(HRFlowable(
-            width='100%', thickness=0.5, color=colors.black,
-            spaceAfter=3, spaceBefore=0
-        ))
-        story.append(Paragraph(esc(day['name']), b))
+        # ── Navy day-header bar ──────────────────────────────────────
+        day_hdr_tbl = Table(
+            [[Paragraph(esc(day['name']), day_hdr_style)]],
+            colWidths=[PW],
+        )
+        day_hdr_tbl.setStyle(TableStyle([
+            ('BACKGROUND',     (0, 0), (-1, -1), NAVY),
+            ('TOPPADDING',     (0, 0), (-1, -1), 6),
+            ('BOTTOMPADDING',  (0, 0), (-1, -1), 6),
+            ('LEFTPADDING',    (0, 0), (-1, -1), 8),
+            ('RIGHTPADDING',   (0, 0), (-1, -1), 8),
+        ]))
+        story.append(day_hdr_tbl)
 
+        # ── Intentions table ─────────────────────────────────────────
         rows = [[Paragraph('Time', b), Paragraph('Intentions', b)]]
         for slot in day['slots']:
-            rows.append([
-                Paragraph(esc(slot['time']), n),
-                intentions_para(slot['intentions']),
-            ])
+            rows.append([Paragraph(esc(slot['time']), n), intentions_para(slot['intentions'])])
+
+        ts = [
+            ('VALIGN',        (0, 0), (-1, -1), 'TOP'),
+            ('BACKGROUND',    (0, 0), (-1,  0), HDR_BG),
+            ('LINEBELOW',     (0, 0), (-1,  0), 0.5, colors.HexColor('#BBAA88')),
+            ('LINEBELOW',     (0, 1), (-1, -1), 0.5, colors.HexColor('#DDDDDD')),
+            ('TOPPADDING',    (0, 0), (-1, -1), 8),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 7),
+            ('LEFTPADDING',   (0, 0), (-1, -1), 0),
+            ('RIGHTPADDING',  (0, 0), (-1, -1), 0),
+            ('LEFTPADDING',   (1, 0), (1,  -1), 10),
+        ]
+        # Alternating row tint on data rows
+        for row_idx in range(2, len(rows), 2):
+            ts.append(('BACKGROUND', (0, row_idx), (-1, row_idx), ROW_EVEN))
 
         t = Table(rows, colWidths=[TIME_COL, INT_COL])
-        t.setStyle(TableStyle([
-            ('VALIGN',        (0, 0), (-1, -1), 'TOP'),
-            ('LINEABOVE',     (0, 0), (-1,  0), 0.5, colors.black),
-            ('LINEBELOW',     (0, 0), (-1,  0), 0.5, colors.black),
-            ('LINEBELOW',     (0, 1), (-1, -1), 0.5, colors.black),
-            ('TOPPADDING',    (0, 0), (-1, -1), 10),
-            ('BOTTOMPADDING', (0, 0), (-1, -1),  8),
-            ('LEFTPADDING',   (0, 0), (-1, -1),  0),
-            ('RIGHTPADDING',  (0, 0), (-1, -1),  0),
-            ('LEFTPADDING',   (1, 0), (1,  -1),  8),
-        ]))
+        t.setStyle(TableStyle(ts))
         story.append(t)
+
         if i < len(days_data) - 1:
+            story.append(Spacer(1, 10))
             story.append(PageBreak())
 
     buf = io.BytesIO()
@@ -282,7 +272,7 @@ def build_pdf_bytes(days_data, date_range_label=''):
         rightMargin=inch, leftMargin=inch,
         topMargin=0.75 * inch, bottomMargin=0.75 * inch,
     )
-    doc.build(story)
+    doc.build(story, onFirstPage=draw_footer, onLaterPages=draw_footer)
     return buf.getvalue()
 
 
@@ -345,10 +335,12 @@ st.markdown(f"""
 <div class="olog-header">
     <div class="cross">✝</div>
     <h1>{PARISH_NAME}</h1>
-    <div class="subtitle">Mass Intentions</div>
-    <div class="address">{PARISH_ADDRESS} &nbsp;·&nbsp; {PARISH_PHONE}</div>
 </div>
-<hr class="olog-divider"/>
+<hr class="olog-gold-rule"/>
+<div class="olog-subheader">
+    <p class="subtitle">Weekday Mass Intentions</p>
+    <p class="address">{PARISH_ADDRESS} &nbsp;·&nbsp; {PARISH_PHONE}</p>
+</div>
 """, unsafe_allow_html=True)
 
 
